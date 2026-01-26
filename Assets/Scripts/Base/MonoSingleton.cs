@@ -12,7 +12,8 @@ public class MonoSingleton<T> : MonoBehaviour where T : Component
             {
                 _instance = FindFirstObjectByType<T>();
             }
-            else
+
+            if(_instance == null)
             {
                 GameObject obj = new GameObject();
                 obj.name = typeof(T).Name;

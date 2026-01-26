@@ -32,6 +32,11 @@ public class UIManager : MonoSingleton<UIManager>
     {
         base.Awake();
 
+        UIHudDic = new Dictionary<string, UIHud>();
+        UIPanelDic = new Dictionary<string, UIPanel>();
+        UIPopupDic = new Dictionary<string, UIPopup>();
+        UIAllStack = new Stack<UIBase>();
+
         if (HudParent == null)
         {
             HudParent = GameObject.Find("HudParent");

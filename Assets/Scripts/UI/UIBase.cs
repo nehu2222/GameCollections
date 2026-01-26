@@ -13,6 +13,8 @@ public class UIBase : MonoBehaviour
 
     public virtual void Awake() {}
 
+    public virtual void Start() { }
+
     public virtual void OnEnable() {}
 
     public virtual void OnDisable() {}
