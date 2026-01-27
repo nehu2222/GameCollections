@@ -17,5 +17,10 @@ public class TestObject : MonoBehaviour
         {
             UIManager.Instance.OpenUI<UIPanel_Test>();
         }
+
+        if(Input.GetKeyDown(KeyCode.B))
+        {
+            UIManager.Instance.OpenUI<UIPanel_Test2>();
+        }
     }
 }

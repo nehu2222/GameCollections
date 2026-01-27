@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -57,24 +57,36 @@ public class UIManager : MonoSingleton<UIManager>
     {
         string uiName = typeof(T).Name;
 
-        GameObject obj = new GameObject();
-        obj.name = uiName;
-        T ui = obj.AddComponent<T>();
+        var uiPrefab = Resources.Load(uiName);
+        if(uiPrefab == null)
+            return null;
+
+        var uiObject = Instantiate(uiPrefab);
+        if(uiObject == null)
+            return null;
+
+        T ui = uiObject.GetComponent<T>();
 
         if (ui is UIHud)
         {
+            ui.transform.SetParent(HudParent.transform);
             UIHudDic.Add(uiName, ui as UIHud);
         }
         else if (ui is UIPanel)
         {
-            UIAllStack.Push(ui);
+            ui.transform.SetParent(PanelParent.transform);
             UIPanelDic.Add(uiName, ui as UIPanel);
+            UIAllStack.Push(ui);
         }
         else if (ui is UIPopup)
         {
-            UIAllStack.Push(ui);
+            ui.transform.SetParent(PopupParent.transform);
             UIPopupDic.Add(uiName, ui as UIPopup);
+            UIAllStack.Push(ui);
         }
+
+        var rect = ui.GetComponent<RectTransform>();
+        rect.anchoredPosition = Vector3.zero;
 
         return ui;
     }
@@ -91,12 +103,12 @@ public class UIManager : MonoSingleton<UIManager>
             ui = uiHud as T;
             return true;
         }
-        else if (UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
+        else if(UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
         {
             ui = uiPanel as T;
             return true;
         }
-        else if (UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
+        else if(UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
         {
             ui = uiPopup as T;
             return true;
@@ -111,18 +123,16 @@ public class UIManager : MonoSingleton<UIManager>
 
         T ui = null;
 
-        if (UIHudDic.TryGetValue(uiName, out UIHud uiHud))
+        if(UIHudDic.TryGetValue(uiName, out UIHud uiHud))
         {
             ui = uiHud as T;
         }
-        else if (UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
+        else if(UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
         {
-            UIPanelDic.Add(uiName, uiPanel);
             ui = uiPanel as T;
         }
-        else if (UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
+        else if(UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
         {
-            UIPopupDic.Add(uiName, uiPopup);
             ui = uiPopup as T;
         }
         else
@@ -130,24 +140,25 @@ public class UIManager : MonoSingleton<UIManager>
             ui = CreateUI<T>();  
         }
 
+        ui.transform.SetAsLastSibling();
         ui.gameObject.SetActive(true);
 
         return ui;
     }
 
-    public bool IsOpen<T>()
+    public bool IsOpen<T>() where T : UIBase
     {
         string uiName = typeof(T).Name;
 
-        if (UIHudDic.TryGetValue(uiName, out UIHud uiHud))
+        if(UIHudDic.TryGetValue(uiName, out UIHud uiHud))
         {
             return uiHud.gameObject.activeSelf;    
         }
-        else if (UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
+        else if(UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
         {
             return uiPanel.gameObject.activeSelf;    
         }
-        else if (UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
+        else if(UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
         {
             return uiPopup.gameObject.activeSelf;    
         }
@@ -157,10 +168,22 @@ public class UIManager : MonoSingleton<UIManager>
 
     public void CloseUI<T>() where T : UIBase
     {
-        //< 미완
-        Type t = typeof(T);
+        string uiName = typeof(T).Name;
 
-
+        if(UIHudDic.TryGetValue(uiName, out UIHud uiHud))
+        {
+            uiHud.gameObject.SetActive(false);
+        }
+        else if(UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
+        {
+            uiPanel.gameObject.SetActive(false);
+            UIAllStack.Pop();
+        }
+        else if(UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
+        {
+            uiPopup.gameObject.SetActive(false);
+            UIAllStack.Pop();
+        }
     }
 
     public void PopUI()
