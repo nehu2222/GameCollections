@@ -22,5 +22,20 @@ public class TestObject : MonoBehaviour
         {
             UIManager.Instance.OpenUI<UIPanel_Test2>();
         }
+
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            UIManager.Instance.CloseUI<UIPanel_Test>();
+        }
+
+        if(Input.GetKeyDown(KeyCode.D))
+        {
+            UIManager.Instance.CloseUI<UIPanel_Test2>();
+        }
+
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            UIManager.Instance.PopUI();
+        }
     }
 }

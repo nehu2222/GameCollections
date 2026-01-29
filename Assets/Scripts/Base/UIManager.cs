@@ -8,6 +8,10 @@ using UnityEngine;
 /// UI Close시 기본적으로 Stack에서만 제거해주고 비활성화 해준다
 /// UI를 완전히 제거할 경우 Stack과 Dictionary에서 제거해주고 인스턴스를 파괴한다
 /// UIHud는 게임을 플레이하는 동안 제거될 일이 없기 때문에 절대 파괴되지 않는다
+/// 
+/// <문제점>
+/// 1. CloseUI 함수를 통해 비활성화 된 UI들을 언제 Destroy할지 고민해보자
+/// 2. 현재는 지우려는 ui와 pop 하는 ui가 맞지 않을 경우의 문제를 해결할 수 없으므로 이 부분 고민해보자
 /// </summary>
 
 public class UIManager : MonoSingleton<UIManager>
@@ -76,13 +80,11 @@ public class UIManager : MonoSingleton<UIManager>
         {
             ui.transform.SetParent(PanelParent.transform);
             UIPanelDic.Add(uiName, ui as UIPanel);
-            UIAllStack.Push(ui);
         }
         else if (ui is UIPopup)
         {
             ui.transform.SetParent(PopupParent.transform);
             UIPopupDic.Add(uiName, ui as UIPopup);
-            UIAllStack.Push(ui);
         }
 
         var rect = ui.GetComponent<RectTransform>();
@@ -119,8 +121,10 @@ public class UIManager : MonoSingleton<UIManager>
 
     public T OpenUI<T>() where T : UIBase
     {
-        string uiName = typeof(T).Name;
+        if(IsOpen<T>())
+            return null;
 
+        string uiName = typeof(T).Name;
         T ui = null;
 
         if(UIHudDic.TryGetValue(uiName, out UIHud uiHud))
@@ -137,7 +141,12 @@ public class UIManager : MonoSingleton<UIManager>
         }
         else
         {
-            ui = CreateUI<T>();  
+            ui = CreateUI<T>();
+        }
+        
+        if(ui is UIHud == false)
+        {
+            UIAllStack.Push(ui);
         }
 
         ui.transform.SetAsLastSibling();
@@ -184,6 +193,31 @@ public class UIManager : MonoSingleton<UIManager>
             uiPopup.gameObject.SetActive(false);
             UIAllStack.Pop();
         }
+    }
+
+    public T FindUI<T>() where T : UIBase
+    {
+        string uiName = typeof(T).Name;
+        T ui = null;
+
+        if(UIHudDic.TryGetValue(uiName, out UIHud uiHud))
+        {
+            ui = uiHud as T;
+        }
+        else if(UIPanelDic.TryGetValue(uiName, out UIPanel uiPanel))
+        {
+            ui = uiPanel as T;
+        }
+        else if(UIPopupDic.TryGetValue(uiName, out UIPopup uiPopup))
+        {
+            ui = uiPopup as T;
+        }
+
+        //< 비활성화일 경우 현재 존재하면 안되는 상황이기 때문에 null 반환
+        if(ui.gameObject.activeSelf == false)
+            return null;
+        
+        return ui;
     }
 
     public void PopUI()
