@@ -236,33 +236,33 @@ public class UIManager : MonoSingleton<UIManager>
     //< 이 밑으로는 만들지 고민 
     //< ============================================================================================================
 
-    public UIHud OpenHud()
-    {
-        UIHud uiHud = CreateUI<UIHud>();
-        return uiHud;
-    }
+    // public UIHud OpenHud()
+    // {
+    //     UIHud uiHud = CreateUI<UIHud>();
+    //     return uiHud;
+    // }
 
-    public void CloseHud()
-    {
+    // public void CloseHud()
+    // {
 
-    }
+    // }
 
-    public void OpenPanel<UIPanel>()
-    {
+    // public void OpenPanel<UIPanel>()
+    // {
 
-    }
+    // }
 
-    public void ClosePanel<UIPanel>()
-    {
+    // public void ClosePanel<UIPanel>()
+    // {
 
-    }
+    // }
 
-    public void OpenPopup<UIPanel>()
-    {
+    // public void OpenPopup<UIPanel>()
+    // {
 
-    }
-    public void ClosePopup<UIPanel>()
-    {
+    // }
+    // public void ClosePopup<UIPanel>()
+    // {
 
-    }
+    // }
 }
